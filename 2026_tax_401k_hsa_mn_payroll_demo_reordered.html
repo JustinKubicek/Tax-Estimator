@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>2026 Tax + 401(k) + HSA + Payroll Demo</title>
+  <style>
+    :root{--green:#00a82d;--green-dark:#08783f;--blue:#0077c5;--ink:#202124;--muted:#5f6368;--bg:#f5f7f8;--card:#ffffff;--line:#dfe4e8;--soft-green:#e9f8ee;--soft-blue:#e8f3fb;--soft-yellow:#fff7dc;--shadow:0 18px 45px rgba(32,33,36,.10)}
+    *{box-sizing:border-box} body{margin:0;font-family:Avenir Next,Avenir,Helvetica Neue,Arial,sans-serif;color:var(--ink);background:radial-gradient(circle at top left,rgba(0,168,45,.12),transparent 34rem),radial-gradient(circle at top right,rgba(0,119,197,.12),transparent 32rem),var(--bg)}
+    .wrap{max-width:1120px;margin:auto;padding:34px 18px 42px}.hero{display:grid;grid-template-columns:1.02fr .98fr;gap:22px;align-items:start}.panel{background:var(--card);border:1px solid var(--line);border-radius:28px;box-shadow:var(--shadow);padding:28px}.kicker{font-weight:800;color:var(--green-dark);letter-spacing:.03em;text-transform:uppercase;font-size:.78rem}h1{font-size:clamp(2rem,5vw,3.65rem);line-height:1;margin:.35rem 0 1rem;letter-spacing:-.055em}.lead{font-size:1.08rem;color:var(--muted);line-height:1.55;margin:0 0 1rem}.badge-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}.badge{border:1px solid var(--line);border-radius:999px;padding:9px 12px;background:#fff;font-weight:700;font-size:.9rem}.badge.green{background:var(--soft-green);border-color:#bee8cb;color:var(--green-dark)}.badge.blue{background:var(--soft-blue);border-color:#c8e3f5;color:#075f99}.controls{display:grid;gap:24px}label{display:flex;justify-content:space-between;gap:12px;font-weight:800;font-size:1.02rem}.value{color:var(--blue);font-variant-numeric:tabular-nums}input[type="range"]{width:100%;accent-color:var(--green);margin-top:12px}.hint{color:var(--muted);font-size:.88rem;margin-top:7px}.result-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:22px}.metric{border:1px solid var(--line);border-radius:20px;padding:18px;background:#fff}.metric.big{background:linear-gradient(135deg,var(--green),var(--green-dark));color:#fff;border:0}.metric.state{background:linear-gradient(135deg,var(--blue),#075f99);color:#fff;border:0}.metric .name{font-size:.82rem;color:var(--muted);font-weight:800;text-transform:uppercase;letter-spacing:.045em}.metric.big .name,.metric.state .name{color:rgba(255,255,255,.82)}.metric .num{font-size:1.55rem;font-weight:900;margin-top:6px;letter-spacing:-.03em;font-variant-numeric:tabular-nums}.metric.big .num,.metric.state .num{font-size:2.25rem}.barbox{margin-top:22px;border:1px solid var(--line);border-radius:20px;padding:18px;background:#fff}.bar-title{font-weight:900;margin-bottom:12px}.bar{height:16px;border-radius:999px;background:#e9edf0;overflow:hidden}.fill{height:100%;width:0%;background:linear-gradient(90deg,var(--blue),var(--green));border-radius:999px;transition:width .2s ease}.equation{margin-top:13px;color:var(--muted);font-size:.92rem;line-height:1.45}.note{margin-top:18px;padding:14px;border-radius:16px;background:var(--soft-green);color:#174f2a;font-weight:750}.note.yellow{background:var(--soft-yellow);color:#5f4800}.small{font-size:.82rem;color:var(--muted);line-height:1.45;margin-top:18px}footer{max-width:1120px;margin:0 auto 28px;padding:0 18px;color:var(--muted);font-size:.78rem;line-height:1.45}@media (max-width:860px){.hero{grid-template-columns:1fr}.result-grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="hero">
+      <div class="panel">
+        <div class="kicker">2026 Tax Demo</div>
+        <h1>See how income, 401(k), and HSA savings change tax.</h1>
+        <p class="lead">Move the sliders. The calculator subtracts traditional 401(k) and HSA contributions, then subtracts the standard deduction, then applies 2026 federal and Minnesota single-filer income tax brackets, adds employee payroll taxes, and estimates after-tax income.</p>
+        <div class="badge-row">
+          <div class="badge green">Single filer</div>
+          <div class="badge">Federal standard deduction: $16,100</div>
+          <div class="badge">MN standard deduction: $15,300</div>
+          <div class="badge blue">401(k) max: $24,500</div>
+          <div class="badge blue">HSA self-only max: $4,400</div>
+          <div class="badge">Payroll taxes: Social Security + Medicare</div>
+        </div>
+        <div class="note" id="deductionNote">Standard deductions taken out.</div>
+        <div class="barbox">
+          <div class="bar-title">Federal taxable income after 401(k) + HSA + standard deduction</div>
+          <div class="bar"><div class="fill" id="federalFill"></div></div>
+          <div class="equation" id="federalEquation"></div>
+        </div>
+        <div class="barbox">
+          <div class="bar-title">Minnesota taxable income after 401(k) + HSA + MN standard deduction</div>
+          <div class="bar"><div class="fill" id="mnFill"></div></div>
+          <div class="equation" id="mnEquation"></div>
+        </div>
+        <div class="note yellow">HSA limit shown is the 2026 self-only limit. Family HSA limit is $8,750.</div>
+      </div>
+
+      <div class="panel controls">
+        <div>
+          <label for="income">Annual income <span class="value" id="incomeVal">$80,000</span></label>
+          <input id="income" type="range" min="0" max="200000" step="1000" value="80000" />
+          <div class="hint">Slider range: $0 to $200,000</div>
+        </div>
+        <div>
+          <label for="k401">Traditional 401(k) contribution <span class="value" id="k401Val">$10,000</span></label>
+          <input id="k401" type="range" min="0" max="24500" step="500" value="10000" />
+          <div class="hint">Capped at the 2026 employee deferral limit of $24,500.</div>
+        </div>
+        <div>
+          <label for="hsa">HSA contribution <span class="value" id="hsaVal">$2,000</span></label>
+          <input id="hsa" type="range" min="0" max="4400" step="100" value="2000" />
+          <div class="hint">Capped at the 2026 self-only HSA limit of $4,400.</div>
+        </div>
+
+        <div class="result-grid">
+          <div class="metric big"><div class="name">Estimated after-tax income</div><div class="num" id="afterTaxVal">$0</div></div>
+          <div class="metric state"><div class="name">Tax saved by 401(k) + HSA</div><div class="num" id="savedVal">$0</div></div>
+          <div class="metric"><div class="name">Estimated federal income tax</div><div class="num" id="federalTaxVal">$0</div></div>
+          <div class="metric"><div class="name">Estimated Minnesota income tax</div><div class="num" id="mnTaxVal">$0</div></div>
+          <div class="metric"><div class="name">Payroll taxes</div><div class="num" id="payrollTaxVal">$0</div></div>
+          <div class="metric"><div class="name">Total taxes shown</div><div class="num" id="totalTaxVal">$0</div></div>
+          <div class="metric"><div class="name">Federal taxable income</div><div class="num" id="federalTaxableVal">$0</div></div>
+          <div class="metric"><div class="name">MN taxable income</div><div class="num" id="mnTaxableVal">$0</div></div>
+          <div class="metric"><div class="name">Federal marginal bracket</div><div class="num" id="federalMarginalVal">0%</div></div>
+          <div class="metric"><div class="name">MN marginal bracket</div><div class="num" id="mnMarginalVal">0%</div></div>
+          <div class="metric"><div class="name">Take-home after contributions</div><div class="num" id="takeHomeVal">$0</div></div>
+        </div>
+        <div class="small">Educational estimate only. Payroll tax estimate uses employee Social Security and Medicare rates; traditional 401(k) reduces income tax here but not FICA, while HSA payroll contributions are treated as reducing FICA wages. It ignores credits, itemized deductions, Minnesota-specific additions/subtractions beyond this simplified demo, local taxes, catch-up contributions, Roth contributions, and HSA eligibility rules.</div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    Built with 2026 single-filer assumptions. Federal: standard deduction $16,100; 401(k) employee limit $24,500; HSA self-only limit $4,400. Minnesota: standard deduction $15,300; single brackets 5.35% to $33,310, 6.80% to $109,430, 7.85% to $203,150, 9.85% over $203,150. Payroll taxes: employee Social Security 6.2% up to $184,500 of FICA wages and Medicare 1.45%.
+  </footer>
+
+  <script>
+    const FED_STANDARD_DEDUCTION = 16100;
+    const MN_STANDARD_DEDUCTION = 15300;
+    const K401_LIMIT = 24500;
+    const HSA_LIMIT = 4400;
+    const SOCIAL_SECURITY_WAGE_BASE = 184500;
+    const SOCIAL_SECURITY_RATE = .062;
+    const MEDICARE_RATE = .0145;
+    const federalBrackets = [
+      {upTo:12400, rate:.10},{upTo:50400, rate:.12},{upTo:105700, rate:.22},{upTo:201775, rate:.24},{upTo:256225, rate:.32},{upTo:640600, rate:.35},{upTo:Infinity, rate:.37}
+    ];
+    const mnBrackets = [
+      {upTo:33310, rate:.0535},{upTo:109430, rate:.068},{upTo:203150, rate:.0785},{upTo:Infinity, rate:.0985}
+    ];
+    const fmt = new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',maximumFractionDigits:0});
+    const pct = v => `${(v*100).toFixed(v < .1 && v > 0 ? 2 : 1)}%`;
+    function calcTax(taxable, brackets){
+      taxable = Math.max(0, taxable);
+      let tax = 0, prev = 0, marginal = 0;
+      for(const b of brackets){
+        if(taxable > prev){
+          const amount = Math.min(taxable, b.upTo) - prev;
+          tax += amount * b.rate;
+          marginal = b.rate;
+          prev = b.upTo;
+        } else break;
+      }
+      return {tax, marginal};
+    }
+    function calcPayrollTax(income, hsa){
+      const ficaWages = Math.max(0, income - hsa);
+      const socialSecurity = Math.min(ficaWages, SOCIAL_SECURITY_WAGE_BASE) * SOCIAL_SECURITY_RATE;
+      const medicare = ficaWages * MEDICARE_RATE;
+      return {socialSecurity, medicare, total: socialSecurity + medicare, ficaWages};
+    }
+    function updateTaxDemo(){
+      const income = Number(document.getElementById('income').value);
+      let k401 = Math.min(Number(document.getElementById('k401').value), income, K401_LIMIT);
+      let hsa = Math.min(Number(document.getElementById('hsa').value), Math.max(0, income - k401), HSA_LIMIT);
+      document.getElementById('k401').value = k401;
+      document.getElementById('hsa').value = hsa;
+
+      const federalTaxable = Math.max(0, income - k401 - hsa - FED_STANDARD_DEDUCTION);
+      const mnTaxable = Math.max(0, income - k401 - hsa - MN_STANDARD_DEDUCTION);
+      const federal = calcTax(federalTaxable, federalBrackets);
+      const mn = calcTax(mnTaxable, mnBrackets);
+      const payroll = calcPayrollTax(income, hsa);
+      const totalTaxes = federal.tax + mn.tax + payroll.total;
+      const takeHome = Math.max(0, income - k401 - hsa - totalTaxes);
+
+      const noSavingsFederal = calcTax(Math.max(0, income - FED_STANDARD_DEDUCTION), federalBrackets).tax;
+      const noSavingsMn = calcTax(Math.max(0, income - MN_STANDARD_DEDUCTION), mnBrackets).tax;
+      const saved = Math.max(0, (noSavingsFederal + noSavingsMn) - (federal.tax + mn.tax));
+
+      document.getElementById('incomeVal').textContent = fmt.format(income);
+      document.getElementById('k401Val').textContent = fmt.format(k401);
+      document.getElementById('hsaVal').textContent = fmt.format(hsa);
+      document.getElementById('afterTaxVal').textContent = fmt.format(takeHome);
+      document.getElementById('takeHomeVal').textContent = fmt.format(takeHome);
+      document.getElementById('federalTaxVal').textContent = fmt.format(federal.tax);
+      document.getElementById('mnTaxVal').textContent = fmt.format(mn.tax);
+      document.getElementById('payrollTaxVal').textContent = fmt.format(payroll.total);
+      document.getElementById('totalTaxVal').textContent = fmt.format(totalTaxes);
+      document.getElementById('federalTaxableVal').textContent = fmt.format(federalTaxable);
+      document.getElementById('mnTaxableVal').textContent = fmt.format(mnTaxable);
+      document.getElementById('federalMarginalVal').textContent = federalTaxable ? `${Math.round(federal.marginal*100)}%` : '0%';
+      document.getElementById('mnMarginalVal').textContent = mnTaxable ? pct(mn.marginal) : '0%';
+      document.getElementById('savedVal').textContent = fmt.format(saved);
+      document.getElementById('deductionNote').textContent = `Standard deductions shown: ${fmt.format(FED_STANDARD_DEDUCTION)} federal and ${fmt.format(MN_STANDARD_DEDUCTION)} Minnesota.`;
+      document.getElementById('federalEquation').textContent = `${fmt.format(income)} income − ${fmt.format(k401)} 401(k) − ${fmt.format(hsa)} HSA − ${fmt.format(FED_STANDARD_DEDUCTION)} federal standard deduction = ${fmt.format(federalTaxable)} federal taxable income`;
+      document.getElementById('mnEquation').textContent = `${fmt.format(income)} income − ${fmt.format(k401)} 401(k) − ${fmt.format(hsa)} HSA − ${fmt.format(MN_STANDARD_DEDUCTION)} MN standard deduction = ${fmt.format(mnTaxable)} MN taxable income`;
+      document.getElementById('federalFill').style.width = `${Math.min(100, federalTaxable / 200000 * 100)}%`;
+      document.getElementById('mnFill').style.width = `${Math.min(100, mnTaxable / 200000 * 100)}%`;
+    }
+    window.updateTaxDemo = updateTaxDemo;
+    window.addEventListener('DOMContentLoaded', () => {
+      ['income','k401','hsa'].forEach(id => {
+        document.getElementById(id).addEventListener('input', updateTaxDemo);
+        document.getElementById(id).addEventListener('change', updateTaxDemo);
+      });
+      updateTaxDemo();
+    });
+    updateTaxDemo();
+  </script>
+</body>
+</html>
